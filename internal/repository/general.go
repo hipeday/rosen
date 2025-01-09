@@ -18,24 +18,18 @@ type GeneralEntity[T any] struct {
 	ModifiedBy int64     `db:"modified_by" json:"modified_by"` // 当前主题更新人
 }
 
-// GeneralTenantEntity 租户通用实例
-type GeneralTenantEntity[T any] struct {
-	GeneralEntity[T]
-	TenantId int64 `db:"tenant_id"` // 租户ID
-}
-
-type Repository[T any] interface {
+type Repository interface {
 	checkIsNoRowsErr(err error) bool         // 检查异常是否是没有查到数据
 	setConnection(connection *sqlx.DB) error // 设置连接
 	getConnection() *sqlx.DB                 // 获取连接
 }
 
-type DefaultRepository[T any] struct {
-	Repository[T]
+type DefaultRepository struct {
+	Repository
 	db *sqlx.DB
 }
 
-func newRepositoryFactory[T any](repo Repository[T]) (Repository[T], error) {
+func newRepositoryFactory(repo Repository) (Repository, error) {
 	logger := logging.Logger()
 	if repo == nil {
 		return nil, errors.New("repository is nil")
@@ -51,11 +45,11 @@ func newRepositoryFactory[T any](repo Repository[T]) (Repository[T], error) {
 	return repo, nil
 }
 
-func (r *DefaultRepository[T]) checkIsNoRowsErr(err error) bool {
+func (r *DefaultRepository) checkIsNoRowsErr(err error) bool {
 	return err != nil && errors.Is(err, sql.ErrNoRows)
 }
 
-func (r *DefaultRepository[T]) setConnection(connection *sqlx.DB) error {
+func (r *DefaultRepository) setConnection(connection *sqlx.DB) error {
 	if connection == nil {
 		return errors.New("connection is nil")
 	}
@@ -63,6 +57,6 @@ func (r *DefaultRepository[T]) setConnection(connection *sqlx.DB) error {
 	return nil
 }
 
-func (r *DefaultRepository[T]) getConnection() *sqlx.DB {
+func (r *DefaultRepository) getConnection() *sqlx.DB {
 	return r.db
 }

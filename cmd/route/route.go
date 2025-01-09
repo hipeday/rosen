@@ -7,6 +7,7 @@ import (
 	"github.com/hipeday/rosen/cmd/route/sso/page"
 	"github.com/hipeday/rosen/conf"
 	"github.com/hipeday/rosen/internal/handler"
+	"github.com/hipeday/rosen/internal/middleware"
 	"path/filepath"
 	"strconv"
 )
@@ -55,5 +56,5 @@ func initPages() {
 
 func initApi() {
 	// init console api
-	console.InitConsoleApi(handlerFactory, engine.Group("/api/console"))
+	console.InitConsoleApi(handlerFactory, engine.Group("/api/console", middleware.I18nMiddleWare()))
 }

@@ -20,12 +20,13 @@ func initPostgres() error {
 
 	// 数据库连接信息 username password host port dbname
 	dsn := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable options='-c search_path=%s'",
 		database.Host,
 		database.Port,
 		database.Username,
 		database.Password,
 		database.Database,
+		"public",
 	)
 
 	db, err = sqlx.Open("pgx", dsn)

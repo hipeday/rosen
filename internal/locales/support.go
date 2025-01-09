@@ -5,6 +5,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
+	"strings"
 )
 
 // Language 语言类型
@@ -13,6 +14,8 @@ type Language string
 var (
 	EnUs Language = "en-US" // 英语(美国🇺🇸)
 	ZhCn Language = "zh-CN" // 中文简体(中国🇨🇳)
+
+	languages []Language = []Language{EnUs, ZhCn}
 )
 
 var (
@@ -49,4 +52,18 @@ func loadFileFS(lang Language) (*i18n.MessageFile, error) {
 
 func Bundle() *i18n.Bundle {
 	return bundle
+}
+
+func MatchLanguage(lang string) string {
+	for _, item := range languages {
+		if strings.ToLower(string(item)) == strings.ToLower(strings.ToLower(lang)) {
+			return string(item)
+		}
+	}
+	for _, item := range languages {
+		if strings.Contains(strings.ToLower(string(item)), strings.ToLower(lang)) {
+			return string(item)
+		}
+	}
+	return string(DefaultLanguage)
 }

@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hipeday/rosen/internal/locales"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"strings"
 )
 
 var localizeKey = "localize"
@@ -16,16 +15,8 @@ func I18nMiddleWare() gin.HandlerFunc {
 		if langHeader == "" {
 			c.Header("Accept-Language", string(locales.DefaultLanguage))
 		}
-		var lang = langHeader
-		if strings.Contains(langHeader, ";") {
-			langAndWeight := strings.Split(langHeader, ";")
-			lang = langAndWeight[0]
-			if strings.Contains(lang, ",") {
-				lang = strings.Split(lang, ",")[0]
-			}
-		}
 		// 设置 localize
-		localize := i18n.NewLocalizer(locales.Bundle(), lang)
+		localize := i18n.NewLocalizer(locales.Bundle(), locales.MatchLanguage(langHeader))
 		c.Set(localizeKey, localize)
 		c.Next()
 	}

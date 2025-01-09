@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"github.com/hipeday/rosen/internal/repository"
 	"sync"
 )
 
@@ -10,8 +9,7 @@ import (
 type Type string
 
 type Handler interface {
-	GetType() Type                               // 获取处理器类型
-	GetRepository() repository.Repository[int64] // 获取存储库对象
+	GetType() Type // 获取处理器类型
 }
 
 // Factory 工厂和缓存管理
