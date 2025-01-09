@@ -23,6 +23,7 @@ go.work.sum
 
 # env file
 .env
+release.env
 
 # apple file
 .DS_Store
