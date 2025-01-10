@@ -59,9 +59,7 @@ func (h *ConsoleHandler) Captcha(c *gin.Context) {
 	}
 	log.Debugf("API '%s' generate captcha is '%s'", c.Request.URL, answer)
 	client := ctx.GetRedisClient()
-	err = client.Set(ctx.GetRedisContext(), rdb.ConsoleLoginCaptcha.String(oneId), answer, 5*time.Second).Err()
-	code := client.Get(ctx.GetRedisContext(), rdb.ConsoleLoginCaptcha.String(oneId))
-	log.Debugf("获取到的验证码 %s", code)
+	err = client.Set(ctx.GetRedisContext(), rdb.ConsoleLoginCaptcha.String(oneId), answer, 5*time.Minute).Err()
 	if err != nil {
 		panic(err)
 	}
