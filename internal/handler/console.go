@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/hipeday/rosen/internal/dto"
+	"github.com/hipeday/rosen/internal/exception"
 	"github.com/hipeday/rosen/internal/logging"
 	"github.com/hipeday/rosen/internal/messages"
 	"github.com/hipeday/rosen/internal/repository"
@@ -65,27 +66,28 @@ func (c *ConsoleHandler) Setup2fa(ctx *gin.Context) {
 	var (
 		usersRepo = c.usersRepo
 		err       error
+		log       = logging.LoggerWithRequestID(ctx.Request.Context())
 	)
 
 	username := ctx.Query("username")  // 用户名
 	totpCode := ctx.Param("totp_code") // 前一份2fa的验证码
 
+	log.Debugf("API '%s' username: '%s', totpCode '%s'", ctx.Request.URL.Path, username, totpCode)
+
 	if username == "" {
-		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
-			Error: messages.GetMessage(messages.UsernameCannotBeEmpty, ctx),
-		})
+		panic(exception.NewValidationError(messages.UsernameCannotBeEmpty))
 		return
 	}
 
 	users, err := usersRepo.SelectByUsername(username)
 	if err != nil {
-		logging.Logger().Errorf(err.Error(), err)
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: err.Error()})
 		return
 	}
 
 	if users == nil {
-		ctx.JSON(http.StatusNotFound, dto.ErrorResponse{Error: messages.GetMessage(messages.DataDoesNotExist, ctx, "users")})
+		log.Debugf("username %s does not exist from database", username)
+		panic(exception.NewNotFoundError("users"))
 		return
 	}
 

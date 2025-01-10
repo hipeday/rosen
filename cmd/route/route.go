@@ -22,6 +22,7 @@ func Startup() {
 	server := cfg.Server
 	gin.SetMode(server.Mode)
 	engine = gin.Default()
+	engine.Use(middleware.ErrorHandlerMiddleware(), middleware.RequestIdMiddleware())
 
 	handlerFactory = handler.NewHandlerFactory()
 

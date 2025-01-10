@@ -3,7 +3,7 @@ package messages
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/hipeday/rosen/internal/middleware"
+	"github.com/hipeday/rosen/internal/ctx"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
@@ -18,10 +18,14 @@ const (
 	DataDoesNotExist ErrorMessage = "messages.error.data_not_found" // 数据不存在
 )
 
+func (e ErrorMessage) String() string {
+	return string(e)
+}
+
 const defaultDictionaryPrefix = "dictionary"
 
 func GetMessage(message ErrorMessage, c *gin.Context, values ...string) string {
-	localize := middleware.GetLocalize(c)
+	localize := ctx.GetLocalize(c)
 	errorMessage := localize.MustLocalize(&i18n.LocalizeConfig{
 		MessageID: string(message),
 	})
@@ -32,7 +36,7 @@ func GetMessage(message ErrorMessage, c *gin.Context, values ...string) string {
 }
 
 func getFormatMessage(c *gin.Context, values ...string) []any {
-	localize := middleware.GetLocalize(c)
+	localize := ctx.GetLocalize(c)
 	if values == nil {
 		return nil
 	}

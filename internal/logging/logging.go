@@ -1,7 +1,9 @@
 package logging
 
 import (
+	"context"
 	"github.com/hipeday/rosen/conf"
+	ctx2 "github.com/hipeday/rosen/internal/ctx"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"log"
@@ -16,6 +18,16 @@ func Setup(cfg *conf.Logging) {
 func Logger() *zap.SugaredLogger {
 	if logger == nil {
 		log.Fatal("logger not initialized")
+	}
+	return logger
+}
+
+func LoggerWithRequestID(ctx context.Context) *zap.SugaredLogger {
+	if logger == nil {
+		log.Fatal("logger not initialized")
+	}
+	if requestId, ok := ctx2.GetRequestId(ctx); ok {
+		return logger.With("requestId", requestId)
 	}
 	return logger
 }
