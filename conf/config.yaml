@@ -18,6 +18,11 @@ database:
     max_idle_conn: ${DATABASE_MAX_IDLE_CONN:5} # 5 connections
     max_idle_time: ${DATABASE_MAX_IDLE_TIME:5} # 5 minutes
     max_life: ${DATABASE_CONN_MAX_LIFETIME:28800} # 8 hours
+redis:
+  ip: "${REDIS_IP: 127.0.0.1}"
+  port: ${REDIS_PORT:6379}
+  database: ${REDIS_DATABASE:0}
+  password: "${REDIS_PASSWORD: }"
 server:
   port: ${SERVER_PORT:3000}
   ip: "${SERVER_IP: 0.0.0.0}"

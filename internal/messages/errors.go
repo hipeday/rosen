@@ -14,6 +14,8 @@ const (
 	UsernameCannotBeEmpty        ErrorMessage = "messages.error.username_cannot_be_empty"   // 用户名或密码错误
 	TOTPVerificationIsNotEnabled ErrorMessage = "messages.error.totp_verify_not_enabled"    // TOTP验证未启用
 	TOTPCodeCannotBeEmpty        ErrorMessage = "messages.error.totp_code_cannot_be_empty"  // TOTP验证码不能为空
+	TotpVerificationFailed       ErrorMessage = "messages.error.totp_verification_failed"   // TOTP验证码不能为空
+	OidCannotBeEmpty             ErrorMessage = "messages.error.oid_cannot_be_empty"        // TOTP验证码不能为空
 
 	DataDoesNotExist ErrorMessage = "messages.error.data_not_found" // 数据不存在
 )

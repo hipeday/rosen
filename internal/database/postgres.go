@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"github.com/hipeday/rosen/conf"
+	"github.com/hipeday/rosen/internal/ctx"
 	"github.com/hipeday/rosen/internal/logging"
 	_ "github.com/jackc/pgx/v5/stdlib" // 注册 pgx 驱动
 	"github.com/jmoiron/sqlx"
@@ -12,7 +12,7 @@ import (
 // initPostgres initializes the PostgresSQL connection pool
 func initPostgres() error {
 	var (
-		cfg              = conf.GetCfg()
+		cfg              = ctx.GetConfig()
 		database         = cfg.Database
 		databasePoolConf = database.Pool
 		err              error

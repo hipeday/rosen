@@ -2,7 +2,7 @@ package banner
 
 import (
 	"fmt"
-	"github.com/hipeday/rosen/conf"
+	"github.com/hipeday/rosen/internal/ctx"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"os"
 	"strconv"
@@ -19,7 +19,7 @@ func readBannerFile() (string, error) {
 }
 
 func bannerFormat(banner string) string {
-	formattedBanner := strings.Replace(banner, "${application.version}", conf.GetCfg().Application.Version, -1)
+	formattedBanner := strings.Replace(banner, "${application.version}", ctx.GetConfig().Application.Version, -1)
 	formattedBanner = strings.Replace(formattedBanner, "%pid%", strconv.Itoa(os.Getpid()), -1)
 	return formattedBanner
 }

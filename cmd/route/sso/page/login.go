@@ -2,14 +2,14 @@ package page
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hipeday/rosen/conf"
+	"github.com/hipeday/rosen/internal/ctx"
 	"path/filepath"
 )
 
 // Login 登录页面
 func Login(engine *gin.Engine) {
 
-	cfg := conf.GetCfg()
+	cfg := ctx.GetConfig()
 
 	consoleGroup := engine.Group("")
 	consoleGroup.GET("/login", func(c *gin.Context) {

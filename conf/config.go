@@ -24,11 +24,19 @@ type Config struct {
 	Server      *Server      `yaml:"server"`
 	Logger      *Logging     `yaml:"logger"`
 	Theme       *Theme       `yaml:"theme"`
+	Redis       *Redis       `json:"redis"`
 }
 
 type Theme struct {
 	Path    string `yaml:"path"`    // 主题路径
 	Default string `yaml:"default"` // 默认主题名称
+}
+
+type Redis struct {
+	IP       string `json:"ip"`
+	Port     int    `json:"port"`
+	Password string `json:"password"`
+	Database int    `json:"database"`
 }
 
 type Application struct {

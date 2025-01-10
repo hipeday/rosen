@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hipeday/rosen/cmd/route/console"
 	"github.com/hipeday/rosen/cmd/route/sso/page"
-	"github.com/hipeday/rosen/conf"
+	"github.com/hipeday/rosen/internal/ctx"
 	"github.com/hipeday/rosen/internal/handler"
 	"github.com/hipeday/rosen/internal/logging"
 	"github.com/hipeday/rosen/internal/middleware"
@@ -19,7 +19,7 @@ var (
 )
 
 func Startup() {
-	cfg := conf.GetCfg()
+	cfg := ctx.GetConfig()
 	server := cfg.Server
 	gin.SetMode(server.Mode)
 	engine = gin.Default()
@@ -34,7 +34,7 @@ func Startup() {
 	initApi()
 
 	addr := server.IP + ":" + strconv.Itoa(int(server.Port))
-	logging.Logger().Infof("Server is starting... Listening on http://%s:%d\n", server.IP, server.Port)
+	logging.Logger().Infof("Server is starting... Listening on http://%s:%d", server.IP, server.Port)
 	err := engine.Run(addr)
 	if err != nil {
 		panic(err)
@@ -50,7 +50,7 @@ func GetEngine() (*gin.Engine, error) {
 }
 
 func initPages() {
-	cfg := conf.GetCfg()
+	cfg := ctx.GetConfig()
 
 	engine.Static("/_next/static", filepath.Join(cfg.Theme.Path, cfg.Theme.Default, "_next/static"))
 

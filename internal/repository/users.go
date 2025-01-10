@@ -12,7 +12,7 @@ type Users struct {
 	GeneralEntity[int64]
 	Username    string     `db:"username"`      // 用户名 必须唯一
 	Password    string     `db:"password"`      // 密码(md5哈希)
-	TotpSecret  string     `db:"totp_secret"`   // TOTP 2FA的密钥
+	TotpSecret  *string    `db:"totp_secret"`   // TOTP 2FA的密钥
 	Email       string     `db:"email"`         // 又想 必须唯一
 	Status      UserStatus `db:"status"`        // 用户状态
 	SuperAdmin  bool       `db:"super_admin"`   // 是否超级管理员，默认否

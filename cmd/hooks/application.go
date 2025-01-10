@@ -3,6 +3,7 @@ package hooks
 import (
 	"github.com/hipeday/rosen/internal/database"
 	"github.com/hipeday/rosen/internal/logging"
+	"github.com/hipeday/rosen/internal/rdb"
 	"os"
 	"os/signal"
 	"syscall"
@@ -27,6 +28,7 @@ func destroyHook() {
 		sig := <-signals
 		logger.Infof("Caught signal %s. Shutting down...", sig)
 		database.Close()
+		rdb.Close()
 		logger.Infof("Safe shutdown successful")
 		os.Exit(0)
 	}()

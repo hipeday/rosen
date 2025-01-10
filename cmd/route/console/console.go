@@ -13,8 +13,11 @@ func InitConsoleApi(handlerFactory *handler.Factory, routeGroup *gin.RouterGroup
 		log.Fatal(err)
 	}
 	consoleHandler := instance.(*handler.ConsoleHandler)
-	routeGroup.POST("/login", consoleHandler.Login)      // 控制台管理员登录
-	routeGroup.POST("/logout", consoleHandler.Logout)    // 控制台管理员登出
-	routeGroup.GET("/current", consoleHandler.Current)   // 获取当前登录的管理员信息
-	routeGroup.GET("/setup2fa", consoleHandler.Setup2fa) // 获取2fa信息
+	routeGroup.POST("/login", consoleHandler.Login)    // 控制台管理员登录
+	routeGroup.GET("/captcha", consoleHandler.Captcha) // 获取控制台管理员登录验证码
+
+	routeGroup.POST("/logout", consoleHandler.Logout)  // 控制台管理员登出
+	routeGroup.GET("/current", consoleHandler.Current) // 获取当前登录的管理员信息
+	routeGroup.GET("/totp", consoleHandler.GetTOTP)    // 获取TOTP信息
+	routeGroup.PUT("/totp", consoleHandler.Setup2fa)   // 设置TOTP二步验证
 }
