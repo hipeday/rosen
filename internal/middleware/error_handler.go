@@ -6,6 +6,7 @@ import (
 	"github.com/hipeday/rosen/internal/exception"
 	"github.com/hipeday/rosen/internal/logging"
 	"github.com/hipeday/rosen/internal/messages"
+	"net/http"
 )
 
 // ErrorHandlerMiddleware is a glob al middleware for handling exceptions
@@ -22,6 +23,8 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 					c.JSON(e.Status(), dto.NewErrorResponse(messages.GetMessage(messages.DataDoesNotExist, c, e.Values...), c))
 				case exception.ValidationError:
 					c.JSON(e.Status(), dto.NewErrorResponse(messages.GetMessage(e.Message, c), c))
+				case error:
+					c.JSON(http.StatusInternalServerError, dto.NewErrorResponse(e.Error(), c))
 				}
 
 				// Prevent further handlers from running

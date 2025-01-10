@@ -81,36 +81,40 @@ func (c *ConsoleHandler) Setup2fa(ctx *gin.Context) {
 
 	users, err := usersRepo.SelectByUsername(username)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: err.Error()})
+		panic(err)
 		return
 	}
 
 	if users == nil {
-		log.Debugf("username %s does not exist from database", username)
+		log.Debugf("Username %s does not exist from database", username)
 		panic(exception.NewNotFoundError("users"))
 		return
 	}
 
 	usersProfiles, err := c.userProfilesRepo.SelectByUserid(users.Id)
 	if err != nil {
+		log.Debugf("Query %s's profiles error", username)
 		logging.Logger().Errorf(err.Error(), err)
-		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: err.Error()})
+		panic(err)
 		return
 	}
 
 	if usersProfiles == nil {
-		ctx.JSON(http.StatusNotFound, dto.ErrorResponse{Error: messages.GetMessage(messages.DataDoesNotExist, ctx, "users_profiles")})
+		log.Debugf("%s's profiles not found from database", username)
+		panic(exception.NewNotFoundError("users_profiles"))
 		return
 	}
 
 	if !usersProfiles.TotpEnabled {
-		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: messages.GetMessage(messages.TOTPVerificationIsNotEnabled, ctx)})
+		log.Debugf("%s's totp is not enabled", username)
+		panic(exception.NewValidationError(messages.TOTPVerificationIsNotEnabled))
 		return
 	}
 
 	if usersProfiles.TotpVerified {
 		if totpCode == "" {
-			ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: messages.GetMessage(messages.TOTPCodeCannotBeEmpty, ctx)})
+			log.Debugf("%s's totp is verified. Please submit the totp cacptcha and try again。", username)
+			panic(exception.NewValidationError(messages.TOTPCodeCannotBeEmpty))
 			return
 		}
 		// TODO 校验TOTP code
@@ -122,8 +126,7 @@ func (c *ConsoleHandler) Setup2fa(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		logging.Logger().Errorf(err.Error(), err)
-		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: err.Error()})
+		panic(err)
 		return
 	}
 
@@ -133,8 +136,7 @@ func (c *ConsoleHandler) Setup2fa(ctx *gin.Context) {
 	// 更新用户信息
 	err = usersRepo.UpdateById(users)
 	if err != nil {
-		logging.Logger().Errorf(err.Error(), err)
-		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: err.Error()})
+		panic(err)
 		return
 	}
 

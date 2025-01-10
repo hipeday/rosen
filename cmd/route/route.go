@@ -7,6 +7,7 @@ import (
 	"github.com/hipeday/rosen/cmd/route/sso/page"
 	"github.com/hipeday/rosen/conf"
 	"github.com/hipeday/rosen/internal/handler"
+	"github.com/hipeday/rosen/internal/logging"
 	"github.com/hipeday/rosen/internal/middleware"
 	"path/filepath"
 	"strconv"
@@ -33,6 +34,7 @@ func Startup() {
 	initApi()
 
 	addr := server.IP + ":" + strconv.Itoa(int(server.Port))
+	logging.Logger().Infof("Server is starting... Listening on http://%s:%d\n", server.IP, server.Port)
 	err := engine.Run(addr)
 	if err != nil {
 		panic(err)
