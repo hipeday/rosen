@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/hipeday/rosen/internal/ctx"
 	"github.com/hipeday/rosen/internal/dto"
@@ -9,9 +10,12 @@ import (
 	"github.com/hipeday/rosen/internal/messages"
 	"github.com/hipeday/rosen/internal/rdb"
 	"github.com/hipeday/rosen/internal/repository"
+	"github.com/hipeday/rosen/pkg/util/token"
 	"github.com/mojocn/base64Captcha"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
+	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 	"net/http"
 	"time"
 )
@@ -24,17 +28,90 @@ type ConsoleHandler struct {
 }
 
 // Login 后台管理系统登录
-func (h *ConsoleHandler) Login(ctx *gin.Context) {
+func (h *ConsoleHandler) Login(c *gin.Context) {
 	var (
-		request dto.ConsoleLoginRequest
-		err     error
+		request   dto.ConsoleLoginRequest
+		err       error
+		log       = logging.LoggerWithRequestID(c.Request.Context())
+		usersRepo = h.usersRepo
 	)
 
-	if err = ctx.ShouldBindBodyWithJSON(&request); err != nil {
+	if err = c.ShouldBindBodyWithJSON(&request); err != nil {
 		panic(err)
 		return
 	}
 
+	h.loginValidation(request, log)
+
+	log.Debugf("Request username: ' %s ', password: ' %s ', captcha: ' %s '", request.Username, request.Password, request.Captcha)
+
+	users, err := usersRepo.SelectByUsernameAndPassword(request.Username, request.Password)
+	if err != nil {
+		panic(err)
+		return
+	}
+
+	if users == nil {
+		panic(exception.NewValidationError(messages.WrongUsernameOrPassword))
+	}
+
+	// 登录成功 1. 生成access_token和refresh_token 2. 更新最后的登录时间
+	// token 5天
+	expiresAt := time.Now().Add(7200 * time.Minute)
+	accessToken, err := token.GenerateAdminPanelJWT(users.Username, ctx.GetConfig().Application.Name, expiresAt)
+	if err != nil {
+		panic(err)
+	}
+
+	users.LastLoginAt = time.Now()
+	err = usersRepo.UpdateById(users)
+	if err != nil {
+		panic(err)
+	}
+
+	redisClient := ctx.GetRedisClient()
+	redisClient.Set(ctx.GetRedisContext(), rdb.ConsoleToken.String(users.Username), accessToken, 7200*time.Minute)
+
+	c.JSON(http.StatusOK, gin.H{"access_token": accessToken, "expires_at": 7200})
+
+}
+
+func (h *ConsoleHandler) loginValidation(request dto.ConsoleLoginRequest, log *zap.SugaredLogger) {
+	if request.Username == "" {
+		log.Debugf("Username is empty")
+		panic(exception.NewValidationError(messages.UsernameCannotBeEmpty))
+		return
+	}
+
+	if request.Password == "" {
+		log.Debugf("Password is empty")
+		panic(exception.NewValidationError(messages.PasswordCannotBeEmpty))
+		return
+	}
+
+	if request.Captcha == "" {
+		log.Debugf("Captcha is empty")
+		panic(exception.NewValidationError(messages.CaptchaCannotBeEmpty))
+		return
+	}
+
+	if request.OID == "" {
+		log.Debugf("OID is empty")
+		panic(exception.NewValidationError(messages.OidCannotBeEmpty))
+		return
+	}
+
+	// 校验验证码
+	captcha, err := ctx.GetRedisClient().GetDel(ctx.GetRedisContext(), rdb.ConsoleLoginCaptcha.String(request.OID)).Result()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		panic(err)
+		return
+	}
+
+	if captcha == "" || captcha != request.Captcha {
+		panic(exception.NewValidationError(messages.CaptchaErrorOrDoesNotExist))
+		return
+	}
 }
 
 func (h *ConsoleHandler) Captcha(c *gin.Context) {

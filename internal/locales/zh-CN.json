@@ -6,7 +6,11 @@
       "data_not_found": "%s不存在",
       "totp_verify_not_enabled": "2FA验证未启用",
       "totp_verification_failed": "验证失败",
-      "oid_cannot_be_empty": "OID不能为空"
+      "oid_cannot_be_empty": "OID不能为空",
+      "password_cannot_be_empty": "密码不能为空",
+      "captcha_cannot_be_empty": "验证码不能为空",
+      "the_captcha_is_wrong_or_does_not_exist": "验证码错误",
+      "unauthorized": "未经授权"
     }
   },
   "dictionary": {

@@ -27,12 +27,12 @@ func RequestIdMiddleware() gin.HandlerFunc {
 
 		// Log the request start with requestId
 		log := logging.LoggerWithRequestID(requestCtx)
-		log.Debug("Request started")
+		log.Debugf("Request ' %s ' started", c.Request.URL)
 
 		// Process the request
 		c.Next()
 
 		// Clear the requestId after the request finishes
-		log.Debug("Request finished")
+		log.Debugf("Request ' %s ' finished", c.Request.URL)
 	}
 }

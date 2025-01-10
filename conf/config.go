@@ -42,6 +42,7 @@ type Redis struct {
 type Application struct {
 	TimeZone string `yaml:"time_zone"`
 	Version  string `yaml:"version"`
+	Name     string `yaml:"name"`
 }
 
 type Database struct {

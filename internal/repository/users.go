@@ -48,6 +48,19 @@ func (r *UsersRepository) SelectByUsername(username string) (*Users, error) {
 	return &users, nil
 }
 
+func (r *UsersRepository) SelectByUsernameAndPassword(username, password string) (*Users, error) {
+	connection := r.getConnection()
+	var users Users
+	err := connection.Get(&users, "SELECT * FROM users WHERE username = $1 AND password = $2", username, password)
+	if r.checkIsNoRowsErr(err) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &users, nil
+}
+
 func (r *UsersRepository) UpdateById(users *Users) error {
 	connection := r.getConnection()
 	sql := "UPDATE rosen.public.users SET totp_secret = $1, email = $2, status = $3, super_admin = $4, last_login_at = $5, created_at = $6, modified_at = $7, created_by = $8, modified_by = $9 WHERE id = $10"
