@@ -34,3 +34,6 @@ release.env
 # themes
 themes/
 __static__
+
+# build
+rosen
