@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/gin-gonic/gin"
+	"context"
 	ctx2 "github.com/hipeday/rosen/internal/ctx"
 )
 
@@ -17,8 +17,8 @@ type ErrorResponse struct {
 	RequestId string `json:"request_id"`
 }
 
-func NewErrorResponse(message string, c *gin.Context) ErrorResponse {
-	requestId, _ := ctx2.GetRequestId(c.Request.Context())
+func NewErrorResponse(message string, c context.Context) ErrorResponse {
+	requestId, _ := ctx2.GetRequestId(c)
 	return ErrorResponse{
 		Error:     message,
 		RequestId: requestId,

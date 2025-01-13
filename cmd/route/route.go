@@ -23,7 +23,7 @@ func Startup() {
 	server := cfg.Server
 	gin.SetMode(server.Mode)
 	engine = gin.Default()
-	engine.Use(middleware.ErrorHandlerMiddleware(), middleware.RequestIdMiddleware())
+	engine.Use(middleware.ErrorHandlerMiddleware(), middleware.I18nMiddleWare(), middleware.RequestIdMiddleware(), middleware.OneIdMiddleware())
 
 	handlerFactory = handler.NewHandlerFactory()
 
@@ -59,5 +59,5 @@ func initPages() {
 
 func initApi() {
 	// init console api
-	console.InitConsoleApi(handlerFactory, engine.Group("/api/console", middleware.I18nMiddleWare()))
+	console.InitConsoleApi(handlerFactory, engine.Group("/api/console"))
 }

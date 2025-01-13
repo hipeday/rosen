@@ -10,6 +10,7 @@ CREATE TYPE user_status AS ENUM (
 CREATE TABLE users (
                        id SERIAL PRIMARY KEY,                                  -- 用户ID，主键，自增
                        username VARCHAR(50) NOT NULL UNIQUE,                   -- 用户名，必须唯一
+                       nickname VARCHAR(64) NOT NULL,                          -- 用户昵称
                        password VARCHAR(255) NOT NULL,                         -- 密码哈希
                        totp_secret VARCHAR(64),                                -- TOTP 2FA的密钥
                        email VARCHAR(100) UNIQUE,                              -- 用户邮箱，必须唯一

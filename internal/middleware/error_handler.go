@@ -13,15 +13,6 @@ import (
 func ErrorHandlerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
-			defer func() {
-				// handler other errors
-				if e := recover(); e != nil {
-					c.JSON(http.StatusInternalServerError, dto.NewErrorResponse(e.(error).Error(), c))
-					c.Abort()
-					// Proceed to the next middleware/handler
-					c.Next()
-				}
-			}()
 			logger := logging.LoggerWithRequestID(c.Request.Context())
 			// Recover from panic if one occurred
 			if err := recover(); err != nil {
@@ -29,13 +20,15 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 				logger.Errorf("Recovered from panic: %v\n", err)
 				switch e := err.(type) {
 				case exception.NotFoundError:
-					c.JSON(e.Status(), dto.NewErrorResponse(messages.GetMessage(messages.DataDoesNotExist, c, e.Values...), c))
+					c.JSON(e.Status(), dto.NewErrorResponse(messages.GetMessage(messages.DataDoesNotExist, c, e.Values...), c.Request.Context()))
 				case exception.ValidationError:
-					c.JSON(e.Status(), dto.NewErrorResponse(messages.GetMessage(e.Message, c), c))
+					c.JSON(e.Status(), dto.NewErrorResponse(messages.GetMessage(e.Message, c), c.Request.Context()))
 				case exception.UnauthorizedError:
-					c.JSON(e.Status(), dto.NewErrorResponse(messages.GetMessage(messages.Unauthorized, c), c))
+					c.JSON(e.Status(), dto.NewErrorResponse(messages.GetMessage(messages.Unauthorized, c), c.Request.Context()))
+				case exception.ForbiddenError:
+					c.JSON(e.Status(), dto.NewErrorResponse(messages.GetMessage(e.Message, c), c.Request.Context()))
 				case error:
-					c.JSON(http.StatusInternalServerError, dto.NewErrorResponse(e.Error(), c))
+					c.JSON(http.StatusInternalServerError, dto.NewErrorResponse(e.Error(), c.Request.Context()))
 				}
 				// Prevent further handlers from running
 				c.Abort()

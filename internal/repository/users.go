@@ -11,6 +11,7 @@ type UserStatus string
 type Users struct {
 	GeneralEntity[int64]
 	Username    string     `db:"username"`      // 用户名 必须唯一
+	Nickname    string     `db:"nickname"`      // 用户昵称不能为空
 	Password    string     `db:"password"`      // 密码(md5哈希)
 	TotpSecret  *string    `db:"totp_secret"`   // TOTP 2FA的密钥
 	Email       string     `db:"email"`         // 又想 必须唯一

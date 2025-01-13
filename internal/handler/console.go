@@ -41,6 +41,9 @@ func (h *ConsoleHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// 设置One Id
+	request.OID = ctx.GetOid(c)
+
 	h.loginValidation(request, log)
 
 	log.Debugf("Request username: ' %s ', password: ' %s ', captcha: ' %s '", request.Username, request.Password, request.Captcha)
@@ -55,7 +58,7 @@ func (h *ConsoleHandler) Login(c *gin.Context) {
 		panic(exception.NewValidationError(messages.WrongUsernameOrPassword))
 	}
 
-	// 登录成功 1. 生成access_token和refresh_token 2. 更新最后的登录时间
+	// 登录成功 1. 生成access_token 2. 更新最后的登录时间
 	// token 5天
 	expiresAt := time.Now().Add(7200 * time.Minute)
 	accessToken, err := token.GenerateAdminPanelJWT(users.Username, ctx.GetConfig().Application.Name, expiresAt)
@@ -119,11 +122,7 @@ func (h *ConsoleHandler) Captcha(c *gin.Context) {
 		err error
 		log = logging.LoggerWithRequestID(c.Request.Context())
 	)
-	oneId := c.Query("oid")
-	if oneId == "" {
-		panic(exception.NewValidationError(messages.OidCannotBeEmpty))
-		return
-	}
+	oid := ctx.GetOid(c)
 
 	driver := base64Captcha.NewDriverDigit(80, 240, 6, 0.7, 80) // 长、宽、位数、噪点密度、字体大小
 	captcha := base64Captcha.NewCaptcha(driver, store)
@@ -136,7 +135,7 @@ func (h *ConsoleHandler) Captcha(c *gin.Context) {
 	}
 	log.Debugf("API '%s' generate captcha is '%s'", c.Request.URL, answer)
 	client := ctx.GetRedisClient()
-	err = client.Set(ctx.GetRedisContext(), rdb.ConsoleLoginCaptcha.String(oneId), answer, 5*time.Minute).Err()
+	err = client.Set(ctx.GetRedisContext(), rdb.ConsoleLoginCaptcha.String(oid), answer, 5*time.Minute).Err()
 	if err != nil {
 		panic(err)
 	}
@@ -150,8 +149,31 @@ func (h *ConsoleHandler) Logout(ctx *gin.Context) {
 }
 
 // Current 后台管理系统登录
-func (h *ConsoleHandler) Current(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{"ping": "pong", "action": "logout"})
+func (h *ConsoleHandler) Current(c *gin.Context) {
+	var (
+		username = ctx.GetUsername(c)
+		userRepo = h.usersRepo
+		err      error
+		log      = logging.LoggerWithRequestID(c.Request.Context())
+	)
+
+	users, err := userRepo.SelectByUsername(username)
+	if err != nil {
+		log.Errorf(err.Error(), err)
+		panic(exception.NewUnauthorizedError())
+	}
+
+	if users == nil {
+		panic(exception.NewUnauthorizedError())
+	}
+
+	c.JSON(200, dto.UsersDetail{
+		Username:      users.Username,
+		Nickname:      users.Nickname,
+		RecentLoginAt: users.LastLoginAt.Unix(),
+		Email:         users.Email,
+		SuperAdmin:    users.SuperAdmin,
+	})
 }
 
 func (h *ConsoleHandler) GetTOTP(ctx *gin.Context) {

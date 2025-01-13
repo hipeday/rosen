@@ -20,12 +20,13 @@ func initPostgres() error {
 
 	// 数据库连接信息 username password host port dbname
 	dsn := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable options='-c search_path=%s'",
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable timezone=%s options='-c search_path=%s'",
 		database.Host,
 		database.Port,
 		database.Username,
 		database.Password,
 		database.Database,
+		cfg.Database.TimeZone,
 		"public",
 	)
 

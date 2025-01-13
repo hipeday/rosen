@@ -42,3 +42,19 @@ func GetRedisClient() *redis.Client {
 func GetConfig() conf.Config {
 	return conf.GetCfg()
 }
+
+// GetOid 获取OneId
+func GetOid(c *gin.Context) string {
+	value, _ := c.Get(OneIdKey.String())
+	return value.(string)
+}
+
+// GetUsername 获取当前登录用户的用户名
+func GetUsername(c *gin.Context) string {
+	return c.GetString(UsernameKey.String())
+}
+
+// GetRequestContext 获取请求上下文
+func GetRequestContext(c *gin.Context) context.Context {
+	return c.Request.Context()
+}

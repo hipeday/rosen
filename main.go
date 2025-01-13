@@ -6,13 +6,11 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
-	"time"
 )
 
 var (
 	//go:embed *.env
-	envFile   embed.FS
-	startTime = time.Now()
+	envFile embed.FS
 )
 
 func init() {

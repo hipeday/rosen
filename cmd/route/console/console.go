@@ -20,8 +20,8 @@ func InitConsoleApi(handlerFactory *handler.Factory, routeGroup *gin.RouterGroup
 	whitelistRoute.GET("/captcha", consoleHandler.Captcha) // 获取控制台管理员登录验证码
 
 	consoleAuthRoute := routeGroup.Group("", middleware.ConsoleAuthMiddleware)
-	consoleAuthRoute.POST("/logout", consoleHandler.Logout)  // 控制台管理员登出
 	consoleAuthRoute.GET("/current", consoleHandler.Current) // 获取当前登录的管理员信息
+	consoleAuthRoute.POST("/logout", consoleHandler.Logout)  // 控制台管理员登出
 	consoleAuthRoute.GET("/totp", consoleHandler.GetTOTP)    // 获取TOTP信息
 	consoleAuthRoute.PUT("/totp", consoleHandler.Setup2fa)   // 设置TOTP二步验证
 }
