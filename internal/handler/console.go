@@ -144,17 +144,20 @@ func (h *ConsoleHandler) Captcha(c *gin.Context) {
 }
 
 // Logout 后台管理系统登录
-func (h *ConsoleHandler) Logout(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{"ping": "pong", "action": "logout"})
+func (h *ConsoleHandler) Logout(c *gin.Context) {
+	username := ctx.GetUsername(c)
+	client := ctx.GetRedisClient()
+	client.GetDel(ctx.GetRedisContext(), rdb.ConsoleToken.String(username))
 }
 
 // Current 后台管理系统登录
 func (h *ConsoleHandler) Current(c *gin.Context) {
 	var (
-		username = ctx.GetUsername(c)
-		userRepo = h.usersRepo
-		err      error
-		log      = logging.LoggerWithRequestID(c.Request.Context())
+		username          = ctx.GetUsername(c)
+		userRepo          = h.usersRepo
+		usersProfilesRepo = h.userProfilesRepo
+		err               error
+		log               = logging.LoggerWithRequestID(c.Request.Context())
 	)
 
 	users, err := userRepo.SelectByUsername(username)
@@ -167,25 +170,44 @@ func (h *ConsoleHandler) Current(c *gin.Context) {
 		panic(exception.NewUnauthorizedError())
 	}
 
+	profiles, err := usersProfilesRepo.SelectByUserid(users.Id)
+	if err != nil {
+		panic(exception.NewUnauthorizedError())
+	}
+
+	if profiles == nil {
+		panic(exception.NewUnauthorizedError())
+	}
+
 	c.JSON(200, dto.UsersDetail{
 		Username:      users.Username,
-		Nickname:      users.Nickname,
 		RecentLoginAt: users.LastLoginAt.Unix(),
 		Email:         users.Email,
 		SuperAdmin:    users.SuperAdmin,
+		Profiles: dto.UsersProfiles{
+			Birthday:     profiles.Birthday.Unix(),
+			Gender:       profiles.Gender,
+			Address:      profiles.Address,
+			TOTPVerified: profiles.TotpVerified,
+			TOTPEnabled:  profiles.TotpEnabled,
+			Mobile:       profiles.Mobile,
+			Nickname:     profiles.Nickname,
+			Avatar:       profiles.Avatar,
+			Bio:          profiles.Bio,
+		},
 	})
 }
 
-func (h *ConsoleHandler) GetTOTP(ctx *gin.Context) {
+func (h *ConsoleHandler) GetTOTP(c *gin.Context) {
 	var (
 		usersRepo = h.usersRepo
 		key       *otp.Key
 		err       error
-		log       = logging.LoggerWithRequestID(ctx.Request.Context())
+		log       = logging.LoggerWithRequestID(c.Request.Context())
 	)
 
-	username := ctx.Query("username") // 用户名
-	log.Debugf("API '%s' username: '%s'", ctx.Request.URL.Path, username)
+	username := ctx.GetUsername(c)
+	log.Debugf("API '%s' username: '%s'", c.Request.URL.Path, username)
 
 	if username == "" {
 		panic(exception.NewValidationError(messages.UsernameCannotBeEmpty))
@@ -204,11 +226,11 @@ func (h *ConsoleHandler) GetTOTP(ctx *gin.Context) {
 		return
 	}
 
-	if users.TotpSecret != nil {
+	if users.TotpSecret != "" {
 		key, err = totp.Generate(totp.GenerateOpts{
 			Issuer:      "RosenConsoleAdminPanel",
 			AccountName: username,
-			Secret:      []byte(*users.TotpSecret),
+			Secret:      []byte(users.TotpSecret),
 		})
 	} else {
 		key, err = totp.Generate(totp.GenerateOpts{
@@ -216,7 +238,7 @@ func (h *ConsoleHandler) GetTOTP(ctx *gin.Context) {
 			AccountName: username,
 		})
 	}
-	ctx.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"secret": key.Secret(),
 		"qrcode": key.URL(),
 	})
@@ -280,7 +302,7 @@ func (h *ConsoleHandler) Setup2fa(ctx *gin.Context) {
 			panic(exception.NewValidationError(messages.TOTPCodeCannotBeEmpty))
 			return
 		}
-		if validate := totp.Validate(totpCode, *users.TotpSecret); !validate {
+		if validate := totp.Validate(totpCode, users.TotpSecret); !validate {
 			panic(exception.NewValidationError(messages.TotpVerificationFailed))
 			return
 		}
@@ -298,7 +320,7 @@ func (h *ConsoleHandler) Setup2fa(ctx *gin.Context) {
 
 	secret := key.Secret()
 
-	users.TotpSecret = &secret
+	users.TotpSecret = secret
 
 	usersProfiles.TotpVerified = false
 	// 更新用户信息
