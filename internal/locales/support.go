@@ -15,15 +15,17 @@ var (
 	EnUs Language = "en-US" // 英语(美国🇺🇸)
 	ZhCn Language = "zh-CN" // 中文简体(中国🇨🇳)
 
-	languages []Language = []Language{EnUs, ZhCn}
-)
+	languages = []Language{EnUs, ZhCn}
 
-var (
 	bundle *i18n.Bundle
 	//go:embed *.json
-	LocaleFS        embed.FS // 扫描当前目录下面的所有json文件
-	DefaultLanguage = EnUs   // 默认使用英语
+	LocaleFS        embed.FS        // 扫描当前目录下面的所有json文件
+	DefaultLanguage Language = EnUs // 默认使用英语
 )
+
+func (k Language) String() string {
+	return string(k)
+}
 
 func init() {
 	// 初始化 i18n Bundle，默认加载英文

@@ -12,7 +12,7 @@ func I18nMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		langHeader := c.GetHeader("Accept-Language")
 		if langHeader == "" {
-			c.Header("Accept-Language", string(locales.DefaultLanguage))
+			langHeader = locales.DefaultLanguage.String()
 		}
 		// 设置 localize
 		localize := i18n.NewLocalizer(locales.Bundle(), locales.MatchLanguage(langHeader))
