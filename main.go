@@ -1,17 +1,11 @@
 package main
 
 import (
-	"embed"
 	"github.com/hipeday/rosen/cmd/app"
 	"github.com/hipeday/rosen/pkg/util/file"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
-)
-
-var (
-	//go:embed *.env
-	envFile embed.FS
 )
 
 func init() {
