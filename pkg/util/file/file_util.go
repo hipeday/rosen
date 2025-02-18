@@ -13,14 +13,24 @@ func CopyFile(src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open source file %s: %w", src, err)
 	}
-	defer sourceFile.Close()
+	defer func(sourceFile *os.File) {
+		err := sourceFile.Close()
+		if err != nil {
+			fmt.Printf("failed to close source file: %v\n", err)
+		}
+	}(sourceFile)
 
 	// 创建目标文件
 	destinationFile, err := os.Create(dst)
 	if err != nil {
 		return fmt.Errorf("failed to create destination file %s: %w", dst, err)
 	}
-	defer destinationFile.Close()
+	defer func(destinationFile *os.File) {
+		err := destinationFile.Close()
+		if err != nil {
+			fmt.Printf("failed to close destination file: %v\n", err)
+		}
+	}(destinationFile)
 
 	// 复制文件内容
 	_, err = io.Copy(destinationFile, sourceFile)
