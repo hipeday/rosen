@@ -39,26 +39,6 @@ func loadEnv(fileName string) error {
 	return nil
 }
 
-func init() {
-	data, err := envFile.ReadFile(".env")
-	if err != nil || len(data) == 0 {
-		data, err = envFile.ReadFile("example.env")
-		if err != nil {
-			log.Fatal("failed to read env file")
-		}
-	}
-	// 将嵌入的 .env 数据写入到临时文件
-	err = os.WriteFile(".env", data, 0644)
-	if err != nil {
-		log.Fatalf("failed to write release.env file: %v", err)
-	}
-	// 加载环境变量
-	err = godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
-}
-
 func main() {
 	app.Run()
 }
