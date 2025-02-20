@@ -6,4 +6,4 @@
 
 Rosen Version  ${application.version}
 PID            %pid%
-Copyright (c) 2024 Rosen Team.
+Copyright (c) 2024 - 2025 Rosen Team.
