@@ -4,6 +4,6 @@
 | .-. \\      /.-._} }| {__ | |\  |
 `-' `-' `----' `----' `----'`-' `-'
 
-Rosen Version  ${application.version}
+${application.name} Version  ${application.version}
 PID            %pid%
 Copyright (c) 2024 - 2025 Rosen Team.

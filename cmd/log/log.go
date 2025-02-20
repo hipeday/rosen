@@ -7,5 +7,5 @@ import (
 
 func Setup() {
 	cfg := ctx.GetConfig()
-	logging.Setup(cfg.Logger)
+	logging.Setup(&cfg.Logger)
 }

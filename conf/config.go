@@ -19,12 +19,12 @@ const (
 )
 
 type Config struct {
-	Application *Application `yaml:"application"`
-	Database    *Database    `yaml:"database"`
-	Server      *Server      `yaml:"server"`
-	Logger      *Logging     `yaml:"logger"`
-	Theme       *Theme       `yaml:"theme"`
-	Redis       *Redis       `json:"redis"`
+	Application Application `yaml:"application"`
+	Database    Database    `yaml:"database"`
+	Server      Server      `yaml:"server"`
+	Logger      Logging     `yaml:"logger"`
+	Theme       Theme       `yaml:"theme"`
+	Redis       Redis       `json:"redis"`
 }
 
 type Theme struct {
@@ -46,15 +46,15 @@ type Application struct {
 }
 
 type Database struct {
-	Type      DatabaseType  `yaml:"type"`
-	Username  string        `yaml:"username"`
-	Password  string        `yaml:"password"`
-	Database  string        `yaml:"database"`
-	Host      string        `yaml:"host"`
-	Port      int16         `yaml:"port"`
-	ParseTime bool          `yaml:"parse_time"`
-	TimeZone  string        `yaml:"time_zone"`
-	Pool      *DatabasePool `yaml:"pool"`
+	Type      DatabaseType `yaml:"type"`
+	Username  string       `yaml:"username"`
+	Password  string       `yaml:"password"`
+	Database  string       `yaml:"database"`
+	Host      string       `yaml:"host"`
+	Port      int16        `yaml:"port"`
+	ParseTime bool         `yaml:"parse_time"`
+	TimeZone  string       `yaml:"time_zone"`
+	Pool      DatabasePool `yaml:"pool"`
 }
 
 type DatabasePool struct {
