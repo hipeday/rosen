@@ -2,7 +2,7 @@
 
 > Application start banner.
 
-## Grammar
+## 语法
 
 ### `${}`
 
